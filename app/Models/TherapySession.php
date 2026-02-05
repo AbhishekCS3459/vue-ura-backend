@@ -10,12 +10,15 @@ class TherapySession extends Model
     protected $table = 'therapy_sessions';
 
     protected $fillable = [
-        'patient_name',
-        'patient_id',
+        'patient_name', // Legacy field
+        'emr_patient_id', // EMR patient ID (legacy string field, renamed from patient_id)
         'phone',
-        'therapy_type',
+        'therapy_type', // Legacy field
         'staff_id',
         'branch_id',
+        'room_id',
+        'treatment_id',
+        'patient_id', // Foreign key to patients table (integer)
         'date',
         'start_time',
         'end_time',
@@ -26,8 +29,8 @@ class TherapySession extends Model
 
     protected $casts = [
         'date' => 'date',
-        'start_time' => 'datetime',
-        'end_time' => 'datetime',
+        // start_time and end_time are stored as TIME (HH:MM:SS) in database
+        // Laravel doesn't have a built-in 'time' cast, so we'll handle them as strings
     ];
 
     public function staff(): BelongsTo
@@ -38,5 +41,20 @@ class TherapySession extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(Branch::class);
+    }
+
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(BranchRoom::class, 'room_id');
+    }
+
+    public function treatment(): BelongsTo
+    {
+        return $this->belongsTo(Treatment::class);
+    }
+
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
     }
 }

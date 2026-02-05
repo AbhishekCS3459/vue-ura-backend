@@ -26,15 +26,25 @@ final class PagePermissionSeeder extends Seeder
         ];
 
         foreach ($pages as $page) {
-            $pageId = DB::table('page_permissions')->insertGetId([
-                'page_key' => $page['page_key'],
-                'page_name' => $page['page_name'],
-                'description' => $page['description'],
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            // Check if page permission already exists
+            $existing = DB::table('page_permissions')
+                ->where('page_key', $page['page_key'])
+                ->first();
 
-            $this->setDefaultPermissions($pageId, $page['page_key']);
+            if ($existing === null) {
+                $pageId = DB::table('page_permissions')->insertGetId([
+                    'page_key' => $page['page_key'],
+                    'page_name' => $page['page_name'],
+                    'description' => $page['description'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                $this->setDefaultPermissions($pageId, $page['page_key']);
+            } else {
+                // Update existing permissions if needed
+                $this->setDefaultPermissions($existing->id, $page['page_key']);
+            }
         }
     }
 
@@ -57,13 +67,21 @@ final class PagePermissionSeeder extends Seeder
         foreach (['super_admin', 'branch_manager', 'staff'] as $role) {
             $isAllowed = in_array($pageKey, $defaultPermissions[$role], true);
 
-            DB::table('role_page_permissions')->insert([
-                'role' => $role,
-                'page_permission_id' => $pageId,
-                'is_allowed' => $isAllowed,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
+            // Check if permission already exists
+            $existing = DB::table('role_page_permissions')
+                ->where('role', $role)
+                ->where('page_permission_id', $pageId)
+                ->first();
+
+            if ($existing === null) {
+                DB::table('role_page_permissions')->insert([
+                    'role' => $role,
+                    'page_permission_id' => $pageId,
+                    'is_allowed' => $isAllowed,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
     }
 }

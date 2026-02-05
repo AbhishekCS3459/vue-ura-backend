@@ -1,0 +1,64 @@
+.git
+.gitignore
+.gitattributes
+.editorconfig
+
+# Dependencies
+/vendor
+/node_modules
+
+# Environment files
+.env
+.env.backup
+.env.production
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+storage/logs/*
+!storage/logs/.gitignore
+
+# Cache
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+bootstrap/cache/*
+!bootstrap/cache/.gitignore
+
+# Testing
+.phpunit.result.cache
+coverage
+.phpunit.cache
+
+# Build artifacts
+/public/hot
+/public/storage
+/public/build
+/public/.htaccess
+
+# Documentation
+*.md
+!README.md
+
+# Scripts (not needed in container)
+setup-and-start.sh
+setup-and-start.bat
+
+# Database
+database/*.sqlite
+database/*.sqlite-journal
+
+# Docker files (don't copy into itself)
+Dockerfile
+docker-compose.yml
+.dockerignore

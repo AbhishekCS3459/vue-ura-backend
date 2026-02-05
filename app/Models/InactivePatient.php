@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class InactivePatient extends Model
 {
     protected $fillable = [
+        'branch_id',
+        'patient_id',
         'name',
         'phone',
         'last_session_date',
@@ -25,6 +27,16 @@ class InactivePatient extends Model
         'last_status_update' => 'datetime',
         'next_follow_up_date' => 'date',
     ];
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(Branch::class);
+    }
+
+    public function patient(): BelongsTo
+    {
+        return $this->belongsTo(Patient::class);
+    }
 
     public function lastTherapist(): BelongsTo
     {

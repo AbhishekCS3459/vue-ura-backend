@@ -23,7 +23,7 @@ final class SuperAdminSeeder extends Seeder
             User::create([
                 'name' => 'Super Admin',
                 'email' => $email,
-                'password' => Hash::make('password123'), // Change this password in production
+                'password' => Hash::make('password123'),
                 'role' => 'super_admin',
                 'branch_id' => null,
             ]);

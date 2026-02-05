@@ -25,12 +25,82 @@ Laravel backend API for the Vue URA Dashboard application.
 
 ### Prerequisites
 
-- PHP 8.2+
-- Composer
-- Docker & Docker Compose
-- Laravel Herd (recommended) or PHP CLI
+- PHP 8.2+ (for local development)
+- Composer (for local development)
+- Docker & Docker Compose (required for Docker setup)
 
-### Installation
+### Docker Setup (Recommended)
+
+The easiest way to run the application is using Docker Compose. This will automatically:
+- Set up PostgreSQL database
+- Build and run the Laravel application
+- Install dependencies
+- Run migrations
+- Seed initial data
+
+**To start everything:**
+
+```bash
+docker compose up -d
+```
+
+The application will be available at:
+- **API**: http://localhost:8000
+- **PgAdmin**: http://localhost:5050 (admin@admin.com / admin)
+
+**To view logs:**
+
+```bash
+docker compose logs -f app
+```
+
+**To stop everything:**
+
+```bash
+docker compose down
+```
+
+**To rebuild after code changes:**
+
+```bash
+docker compose up -d --build
+```
+
+**To run Artisan commands:**
+
+```bash
+docker compose exec app php artisan <command>
+```
+
+**To access the container shell:**
+
+```bash
+docker compose exec app sh
+```
+
+### Quick Setup (Automated - Local Development)
+
+For a quick setup that handles everything automatically:
+
+**Windows (Git Bash or WSL):**
+```bash
+./setup-and-start.sh
+```
+
+**Windows (Command Prompt/PowerShell):**
+```cmd
+setup-and-start.bat
+```
+
+This script will:
+1. Check Docker is running
+2. Start PostgreSQL container
+3. Wait for database to be ready
+4. Run all migrations
+5. Seed SuperAdmin, Branches, and Page Permissions
+6. Start the Laravel development server
+
+### Manual Installation
 
 1. Install dependencies:
 ```bash

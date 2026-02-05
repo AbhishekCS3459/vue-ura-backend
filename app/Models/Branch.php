@@ -11,10 +11,12 @@ class Branch extends Model
         'name',
         'city',
         'opening_hours',
+        'is_open',
     ];
 
     protected $casts = [
         'opening_hours' => 'array',
+        'is_open' => 'boolean',
     ];
 
     public function staff(): HasMany

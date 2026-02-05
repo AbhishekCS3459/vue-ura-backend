@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Staff extends Model
 {
@@ -13,7 +14,7 @@ class Staff extends Model
         'gender',
         'role',
         'phone',
-        'session_types',
+        'session_types', // Legacy JSON field (kept for backward compatibility)
         'availability',
         'branch_id',
     ];
@@ -31,5 +32,13 @@ class Staff extends Model
     public function therapySessions(): HasMany
     {
         return $this->hasMany(TherapySession::class);
+    }
+
+    /**
+     * Treatments that this staff can perform (many-to-many)
+     */
+    public function treatments(): BelongsToMany
+    {
+        return $this->belongsToMany(Treatment::class, 'staff_treatment_assignments', 'staff_id', 'treatment_id');
     }
 }
