@@ -160,6 +160,9 @@ php artisan serve
 ### Health Check
 - `GET /api/health` - Health check endpoint
 
+### API Documentation (Swagger)
+- `GET /api-docs` - VeCura external API documentation (Swagger UI)
+
 ### Branches
 - `GET /api/branches` - Get all branches
 

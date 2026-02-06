@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HealthController;
+use App\Http\Controllers\VeCuraProxyController;
 use App\Http\Controllers\IAMController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\PatientController;
@@ -15,6 +16,10 @@ use App\Http\Controllers\InactivePatientController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', [HealthController::class, 'check']);
+
+// VeCura API Proxy (avoids CORS when calling from Swagger UI / docs)
+Route::get('/vecura/{endpoint}', [VeCuraProxyController::class, 'proxy'])
+    ->where('endpoint', 'APILocation\.jsp|APIServiceMaster\.jsp|APIPatientSearch\.jsp|APIPendingSessions\.jsp|APIPendingAdvance\.jsp');
 
 // Branch Management
 Route::prefix('branches')->group(function () {
