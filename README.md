@@ -136,15 +136,16 @@ php artisan key:generate
 docker-compose up -d
 ```
 
-5. Update `.env` with database credentials:
+5. Update `.env` with database credentials (or use `cp .env.development .env`):
 ```
 DB_CONNECTION=mariadb
 DB_HOST=127.0.0.1
-DB_PORT=3306
+DB_PORT=3307
 DB_DATABASE=vue_ura_db
 DB_USERNAME=vue_ura_user
 DB_PASSWORD=vue_ura_password
 ```
+Note: MariaDB is exposed on host port 3307 to avoid conflicts.
 
 6. Run migrations:
 ```bash
