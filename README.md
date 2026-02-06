@@ -46,7 +46,21 @@ docker compose up -d
 
 The application will be available at:
 - **API**: http://localhost:8000
-- **Adminer**: http://localhost:5050 (database GUI - use DB credentials from .env)
+- **Adminer**: http://localhost:5050 (database GUI - use credentials from `.env.development`)
+
+### Environment Configuration
+
+The project uses separate env files for development and production:
+
+| File | Use Case | Database |
+|------|----------|----------|
+| `.env.development` | Local development with Docker | MariaDB in Docker (vue_ura_db) |
+| `.env.production` | Production deployment | Remote MariaDB (mediva) |
+
+**Development** (default): Uses `.env.development` with Docker MariaDB credentials from `docker-compose.yml`:
+- DB_HOST=mariadb, DB_DATABASE=vue_ura_db, DB_USERNAME=vue_ura_user, DB_PASSWORD=vue_ura_password
+
+**Production**: Copy `.env.production.example` to `.env.production` and configure for your production server. When deploying with `APP_ENV=production`, the app uses production DB credentials.
 
 **To view logs:**
 

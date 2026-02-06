@@ -5,13 +5,21 @@ echo "Starting Laravel application setup..."
 
 # Wait for MariaDB to be ready
 echo "Waiting for MariaDB to be ready..."
-MAX_ATTEMPTS=30
+if [ "${APP_ENV:-local}" = "production" ]; then
+  MAX_ATTEMPTS=5
+  CONNECT_TIMEOUT=5
+else
+  MAX_ATTEMPTS=30
+  CONNECT_TIMEOUT=2
+fi
 ATTEMPT=0
 
-# Simple connection test using PHP
+# Simple connection test using PHP (connect_timeout for remote DB)
 until php -r "
 try {
-    \$pdo = new PDO('mysql:host=${DB_HOST:-mariadb};port=${DB_PORT:-3306};dbname=${DB_DATABASE:-vue_ura_db}', '${DB_USERNAME:-vue_ura_user}', '${DB_PASSWORD:-vue_ura_password}');
+    \$opts = [PDO::ATTR_TIMEOUT => ${CONNECT_TIMEOUT}];
+    \$dsn = 'mysql:host=${DB_HOST:-mariadb};port=${DB_PORT:-3306};dbname=${DB_DATABASE:-vue_ura_db};connect_timeout=${CONNECT_TIMEOUT}';
+    \$pdo = new PDO(\$dsn, '${DB_USERNAME:-vue_ura_user}', '${DB_PASSWORD:-vue_ura_password}', \$opts);
     \$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     exit(0);
 } catch (PDOException \$e) {
@@ -56,21 +64,30 @@ npm run build
 
 # Create or update .env file from environment variables
 echo "Updating .env file from environment variables..."
-# Always update DB_HOST to use Docker service name if running in container
-if [ -f ".env" ]; then
-    # Remove commented DB_HOST lines and update existing DB_HOST to use Docker service name
-    sed -i '/^#.*DB_HOST=/d' .env 2>/dev/null || sed -i '' '/^#.*DB_HOST=/d' .env 2>/dev/null || true
-    if grep -q "^DB_HOST=" .env; then
-        # Update existing DB_HOST line
-        sed -i 's/^DB_HOST=.*/DB_HOST=mariadb/' .env 2>/dev/null || \
-        sed -i '' 's/^DB_HOST=.*/DB_HOST=mariadb/' .env 2>/dev/null || true
-    else
-        # Add DB_HOST if it doesn't exist
-        echo "DB_HOST=mariadb" >> .env
+# In development (Docker): use .env.development and ensure DB_HOST=mariadb
+# In production: use .env.production - do not override DB config
+if [ "${APP_ENV:-local}" = "production" ]; then
+    # Production: copy .env.production to .env if it exists
+    if [ -f ".env.production" ]; then
+        cp .env.production .env
+        echo "Using .env.production for production"
     fi
 else
-    # Create new .env file
-    cat > .env <<EOF
+    # Development: ensure .env has Docker MariaDB config
+    if [ -f ".env.development" ]; then
+        cp .env.development .env
+    fi
+    if [ -f ".env" ]; then
+        # Update DB_HOST to use Docker service name when running in container
+        sed -i '/^#.*DB_HOST=/d' .env 2>/dev/null || sed -i '' '/^#.*DB_HOST=/d' .env 2>/dev/null || true
+        if grep -q "^DB_HOST=" .env; then
+            sed -i 's/^DB_HOST=.*/DB_HOST=mariadb/' .env 2>/dev/null || \
+            sed -i '' 's/^DB_HOST=.*/DB_HOST=mariadb/' .env 2>/dev/null || true
+        else
+            echo "DB_HOST=mariadb" >> .env
+        fi
+    else
+        cat > .env <<EOF
 APP_NAME=${APP_NAME:-Laravel}
 APP_ENV=${APP_ENV:-local}
 APP_KEY=
@@ -89,13 +106,12 @@ CACHE_DRIVER=${CACHE_DRIVER:-file}
 SESSION_DRIVER=${SESSION_DRIVER:-file}
 QUEUE_CONNECTION=${QUEUE_CONNECTION:-sync}
 EOF
-fi
-
-# Final check: ensure DB_HOST is set correctly for Docker
-if ! grep -q "^DB_HOST=mariadb" .env; then
-    # Remove any existing DB_HOST line and add the correct one
-    sed -i '/^DB_HOST=/d' .env 2>/dev/null || sed -i '' '/^DB_HOST=/d' .env 2>/dev/null || true
-    echo "DB_HOST=mariadb" >> .env
+    fi
+    # Ensure DB_HOST=mariadb for Docker development
+    if ! grep -q "^DB_HOST=mariadb" .env; then
+        sed -i '/^DB_HOST=/d' .env 2>/dev/null || sed -i '' '/^DB_HOST=/d' .env 2>/dev/null || true
+        echo "DB_HOST=mariadb" >> .env
+    fi
 fi
 
 # Generate application key if missing
