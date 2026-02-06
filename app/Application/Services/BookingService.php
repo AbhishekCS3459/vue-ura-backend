@@ -76,9 +76,9 @@ final class BookingService
                     ->where('status', '!=', 'Cancelled')
                     ->where(function ($query) use ($startCarbon, $bookingEndTime) {
                         $query->where(function ($q) use ($startCarbon, $bookingEndTime) {
-                            // PostgreSQL-compatible syntax: use + INTERVAL instead of DATE_ADD
+                            // MariaDB/MySQL syntax: ADDTIME for time + interval
                             $q->where('start_time', '<', $bookingEndTime->format('H:i:s'))
-                                ->whereRaw("COALESCE(end_time, start_time + INTERVAL '1 hour') > ?", [$startCarbon->format('H:i:s')]);
+                                ->whereRaw("COALESCE(end_time, ADDTIME(start_time, '01:00:00')) > ?", [$startCarbon->format('H:i:s')]);
                         });
                     })
                     ->exists();
@@ -97,7 +97,7 @@ final class BookingService
                 $staffWithPatient = TherapySession::where('staff_id', $staffId)
                     ->where('date', $date)
                     ->where('start_time', '<=', $slotTime)
-                    ->whereRaw("start_time + INTERVAL '30 minutes' > ?", [$slotTime])
+                    ->whereRaw("ADDTIME(start_time, '00:30:00') > ?", [$slotTime])
                     ->where('status', '!=', 'Cancelled')
                     ->exists();
 

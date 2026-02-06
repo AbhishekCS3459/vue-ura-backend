@@ -22,7 +22,7 @@ return new class extends Migration
             DB::statement("ALTER TABLE inactive_patients ADD CONSTRAINT inactive_patients_status_check CHECK (status IN ('Follow-up', 'Did not reply', 'Did not pick up', 'Next', 'Ask for callback'))");
             DB::statement("ALTER TABLE inactive_patients ALTER COLUMN status SET DEFAULT 'Follow-up'");
         } else {
-            // For MySQL
+            // For MySQL/MariaDB
             DB::statement("ALTER TABLE inactive_patients MODIFY COLUMN status ENUM('Follow-up', 'Did not reply', 'Did not pick up', 'Next', 'Ask for callback') DEFAULT 'Follow-up'");
         }
     }
@@ -40,7 +40,7 @@ return new class extends Migration
             DB::statement("ALTER TABLE inactive_patients ADD CONSTRAINT inactive_patients_status_check CHECK (status IN ('No action', 'Message sent', 'No response', 'Call scheduled', 'Asked to call back'))");
             DB::statement("ALTER TABLE inactive_patients ALTER COLUMN status SET DEFAULT 'No action'");
         } else {
-            // For MySQL
+            // For MySQL/MariaDB
             DB::statement("ALTER TABLE inactive_patients MODIFY COLUMN status ENUM('No action', 'Message sent', 'No response', 'Call scheduled', 'Asked to call back') DEFAULT 'No action'");
         }
     }

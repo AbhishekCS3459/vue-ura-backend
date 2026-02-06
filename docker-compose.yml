@@ -1,38 +1,35 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: vue-ura-postgres
+  mariadb:
+    image: mariadb:11
+    container_name: vue-ura-mariadb
     restart: unless-stopped
     environment:
-      POSTGRES_DB: vue_ura_db
-      POSTGRES_USER: vue_ura_user
-      POSTGRES_PASSWORD: vue_ura_password
+      MARIADB_DATABASE: vue_ura_db
+      MARIADB_USER: vue_ura_user
+      MARIADB_PASSWORD: vue_ura_password
+      MARIADB_ROOT_PASSWORD: vue_ura_password
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mariadb_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U vue_ura_user -d vue_ura_db"]
+      test: ["CMD", "healthcheck.sh", "--su-mysql", "--connect", "--innodb_initialized"]
+      start_period: 10s
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
       - vue-ura-network
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: vue-ura-pgadmin
+  adminer:
+    image: adminer
+    container_name: vue-ura-adminer
     restart: unless-stopped
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
     ports:
-      - "5050:80"
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
+      - "5050:8080"
     depends_on:
-      - postgres
+      mariadb:
+        condition: service_healthy
     networks:
       - vue-ura-network
 
@@ -56,9 +53,9 @@ services:
       - APP_KEY=
       - APP_DEBUG=true
       - APP_URL=http://localhost:8000
-      - DB_CONNECTION=pgsql
-      - DB_HOST=postgres
-      - DB_PORT=5432
+      - DB_CONNECTION=mariadb
+      - DB_HOST=mariadb
+      - DB_PORT=3306
       - DB_DATABASE=vue_ura_db
       - DB_USERNAME=vue_ura_user
       - DB_PASSWORD=vue_ura_password
@@ -66,7 +63,7 @@ services:
       - SESSION_DRIVER=file
       - QUEUE_CONNECTION=sync
     depends_on:
-      postgres:
+      mariadb:
         condition: service_healthy
     networks:
       - vue-ura-network
@@ -76,5 +73,4 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
-  pgadmin_data:
+  mariadb_data:

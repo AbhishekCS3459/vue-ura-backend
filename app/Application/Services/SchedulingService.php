@@ -376,7 +376,7 @@ final class SchedulingService
             $isWithPatient = TherapySession::where('staff_id', $staff['id'])
                 ->where('date', $date)
                 ->where('start_time', '<=', $slotTime)
-                ->whereRaw("start_time + INTERVAL '30 minutes' > ?", [$slotTime])
+                ->whereRaw("ADDTIME(start_time, '00:30:00') > ?", [$slotTime])
                 ->where('status', '!=', 'Cancelled')
                 ->where('whatsapp_status', '!=', 'Cancelled')
                 ->exists();

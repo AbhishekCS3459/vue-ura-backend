@@ -48,26 +48,26 @@ if %ERRORLEVEL% NEQ 0 (
     exit /b 1
 )
 
-REM Wait for PostgreSQL to be healthy
-echo Waiting for PostgreSQL to be ready...
+REM Wait for MariaDB to be healthy
+echo Waiting for MariaDB to be ready...
 set MAX_ATTEMPTS=30
 set ATTEMPT=0
-:wait_postgres
-docker-compose ps postgres | findstr "healthy" >nul 2>&1
+:wait_mariadb
+docker-compose ps mariadb | findstr "healthy" >nul 2>&1
 if %ERRORLEVEL% EQU 0 (
-    echo PostgreSQL is healthy
+    echo MariaDB is healthy
     echo.
-    goto :postgres_ready
+    goto :mariadb_ready
 )
 set /a ATTEMPT+=1
 if !ATTEMPT! GEQ %MAX_ATTEMPTS% (
-    echo Error: PostgreSQL did not become healthy in time
+    echo Error: MariaDB did not become healthy in time
     exit /b 1
 )
 timeout /t 2 /nobreak >nul
-goto :wait_postgres
+goto :wait_mariadb
 
-:postgres_ready
+:mariadb_ready
 
 REM Step 3: Run migrations
 echo [3/6] Running database migrations...

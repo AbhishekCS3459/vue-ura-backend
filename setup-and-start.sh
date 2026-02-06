@@ -73,13 +73,13 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Wait for PostgreSQL to be healthy
-echo -e "${YELLOW}Waiting for PostgreSQL to be ready...${NC}"
+# Wait for MariaDB to be healthy
+echo -e "${YELLOW}Waiting for MariaDB to be ready...${NC}"
 MAX_ATTEMPTS=30
 ATTEMPT=0
 while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-    if docker-compose ps postgres | grep -q "healthy"; then
-        echo -e "${GREEN}✓ PostgreSQL is healthy${NC}\n"
+    if docker-compose ps mariadb | grep -q "healthy"; then
+        echo -e "${GREEN}✓ MariaDB is healthy${NC}\n"
         break
     fi
     ATTEMPT=$((ATTEMPT + 1))
@@ -88,7 +88,7 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
 done
 
 if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
-    echo -e "\n${RED}Error: PostgreSQL did not become healthy in time${NC}"
+    echo -e "\n${RED}Error: MariaDB did not become healthy in time${NC}"
     exit 1
 fi
 

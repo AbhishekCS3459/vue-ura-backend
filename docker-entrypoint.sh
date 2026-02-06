@@ -3,15 +3,15 @@ set -e
 
 echo "Starting Laravel application setup..."
 
-# Wait for PostgreSQL to be ready
-echo "Waiting for PostgreSQL to be ready..."
+# Wait for MariaDB to be ready
+echo "Waiting for MariaDB to be ready..."
 MAX_ATTEMPTS=30
 ATTEMPT=0
 
 # Simple connection test using PHP
 until php -r "
 try {
-    \$pdo = new PDO('pgsql:host=${DB_HOST:-postgres};port=${DB_PORT:-5432};dbname=${DB_DATABASE:-vue_ura_db}', '${DB_USERNAME:-vue_ura_user}', '${DB_PASSWORD:-vue_ura_password}');
+    \$pdo = new PDO('mysql:host=${DB_HOST:-mariadb};port=${DB_PORT:-3306};dbname=${DB_DATABASE:-vue_ura_db}', '${DB_USERNAME:-vue_ura_user}', '${DB_PASSWORD:-vue_ura_password}');
     \$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     exit(0);
 } catch (PDOException \$e) {
@@ -19,14 +19,14 @@ try {
 }
 " 2>/dev/null || [ $ATTEMPT -eq $MAX_ATTEMPTS ]; do
   ATTEMPT=$((ATTEMPT + 1))
-  echo "PostgreSQL is unavailable - sleeping (attempt $ATTEMPT/$MAX_ATTEMPTS)"
+  echo "MariaDB is unavailable - sleeping (attempt $ATTEMPT/$MAX_ATTEMPTS)"
   sleep 2
 done
 
 if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
-  echo "Warning: PostgreSQL may not be ready, but continuing..."
+  echo "Warning: MariaDB may not be ready, but continuing..."
 else
-  echo "PostgreSQL is up - executing commands"
+  echo "MariaDB is up - executing commands"
 fi
 
 # Install Composer dependencies
@@ -62,11 +62,11 @@ if [ -f ".env" ]; then
     sed -i '/^#.*DB_HOST=/d' .env 2>/dev/null || sed -i '' '/^#.*DB_HOST=/d' .env 2>/dev/null || true
     if grep -q "^DB_HOST=" .env; then
         # Update existing DB_HOST line
-        sed -i 's/^DB_HOST=.*/DB_HOST=postgres/' .env 2>/dev/null || \
-        sed -i '' 's/^DB_HOST=.*/DB_HOST=postgres/' .env 2>/dev/null || true
+        sed -i 's/^DB_HOST=.*/DB_HOST=mariadb/' .env 2>/dev/null || \
+        sed -i '' 's/^DB_HOST=.*/DB_HOST=mariadb/' .env 2>/dev/null || true
     else
         # Add DB_HOST if it doesn't exist
-        echo "DB_HOST=postgres" >> .env
+        echo "DB_HOST=mariadb" >> .env
     fi
 else
     # Create new .env file
@@ -78,9 +78,9 @@ APP_DEBUG=${APP_DEBUG:-true}
 APP_URL=${APP_URL:-http://localhost:8000}
 APP_TIMEZONE=UTC
 
-DB_CONNECTION=${DB_CONNECTION:-pgsql}
-DB_HOST=postgres
-DB_PORT=${DB_PORT:-5432}
+DB_CONNECTION=${DB_CONNECTION:-mariadb}
+DB_HOST=mariadb
+DB_PORT=${DB_PORT:-3306}
 DB_DATABASE=${DB_DATABASE:-vue_ura_db}
 DB_USERNAME=${DB_USERNAME:-vue_ura_user}
 DB_PASSWORD=${DB_PASSWORD:-vue_ura_password}
@@ -92,10 +92,10 @@ EOF
 fi
 
 # Final check: ensure DB_HOST is set correctly for Docker
-if ! grep -q "^DB_HOST=postgres" .env; then
+if ! grep -q "^DB_HOST=mariadb" .env; then
     # Remove any existing DB_HOST line and add the correct one
     sed -i '/^DB_HOST=/d' .env 2>/dev/null || sed -i '' '/^DB_HOST=/d' .env 2>/dev/null || true
-    echo "DB_HOST=postgres" >> .env
+    echo "DB_HOST=mariadb" >> .env
 fi
 
 # Generate application key if missing

@@ -8,14 +8,14 @@ RUN apk add --no-cache \
     libzip-dev \
     zip \
     unzip \
-    postgresql-dev \
+    mariadb-dev \
     nodejs \
     npm \
     oniguruma-dev \
     bash \
     && docker-php-ext-install \
     pdo \
-    pdo_pgsql \
+    pdo_mysql \
     mbstring \
     exif \
     pcntl \

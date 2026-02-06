@@ -32,7 +32,7 @@ return new class extends Migration
             DB::statement("ALTER TABLE inactive_patients ADD CONSTRAINT inactive_patients_last_action_check CHECK (last_action IN ('None', 'Message sent', 'Follow up call made'))");
             DB::statement("ALTER TABLE inactive_patients ALTER COLUMN last_action SET DEFAULT 'None'");
         } else {
-            // For MySQL, use the existing approach
+            // For MySQL/MariaDB
             DB::statement("ALTER TABLE inactive_patients MODIFY COLUMN status ENUM('Follow-up', 'Did not reply', 'Did not pick up', 'Next', 'Ask for callback') DEFAULT 'Follow-up'");
         }
     }
@@ -55,7 +55,7 @@ return new class extends Migration
             
             DB::statement("ALTER TABLE inactive_patients ADD CONSTRAINT inactive_patients_last_action_check CHECK (last_action IN ('None', 'Message sent', 'Follow up call made'))");
         } else {
-            // For MySQL
+            // For MySQL/MariaDB
             DB::statement("ALTER TABLE inactive_patients MODIFY COLUMN status ENUM('No action', 'Message sent', 'No response', 'Call scheduled', 'Asked to call back') DEFAULT 'No action'");
         }
     }

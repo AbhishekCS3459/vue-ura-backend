@@ -12,12 +12,12 @@ Laravel backend API for the Vue URA Dashboard application.
   - Staff
 - **Branch-based Filtering**: Users can only access data for their assigned branch (except Super Admin)
 - **Page Permissions**: Configurable page access per user, stored in users table
-- **Docker PostgreSQL**: Database setup with Docker Compose
+- **Docker MariaDB**: Database setup with Docker Compose
 
 ## Tech Stack
 
 - Laravel 11
-- PostgreSQL (via Docker)
+- MariaDB (via Docker)
 - Laravel Sanctum (Authentication)
 - Clean Architecture / Hexagonal Architecture
 
@@ -32,7 +32,7 @@ Laravel backend API for the Vue URA Dashboard application.
 ### Docker Setup (Recommended)
 
 The easiest way to run the application is using Docker Compose. This will automatically:
-- Set up PostgreSQL database
+- Set up MariaDB database
 - Build and run the Laravel application
 - Install dependencies
 - Run migrations
@@ -46,7 +46,7 @@ docker compose up -d
 
 The application will be available at:
 - **API**: http://localhost:8000
-- **PgAdmin**: http://localhost:5050 (admin@admin.com / admin)
+- **Adminer**: http://localhost:5050 (database GUI - use DB credentials from .env)
 
 **To view logs:**
 
@@ -94,7 +94,7 @@ setup-and-start.bat
 
 This script will:
 1. Check Docker is running
-2. Start PostgreSQL container
+2. Start MariaDB container
 3. Wait for database to be ready
 4. Run all migrations
 5. Seed SuperAdmin, Branches, and Page Permissions
@@ -117,16 +117,16 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-4. Start PostgreSQL database:
+4. Start MariaDB database:
 ```bash
 docker-compose up -d
 ```
 
 5. Update `.env` with database credentials:
 ```
-DB_CONNECTION=pgsql
+DB_CONNECTION=mariadb
 DB_HOST=127.0.0.1
-DB_PORT=5432
+DB_PORT=3306
 DB_DATABASE=vue_ura_db
 DB_USERNAME=vue_ura_user
 DB_PASSWORD=vue_ura_password
