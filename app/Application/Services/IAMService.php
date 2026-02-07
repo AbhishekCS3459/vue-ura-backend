@@ -48,6 +48,11 @@ final class IAMService
 
     public function createUser(User $currentUser, array $data): User
     {
+        $role = $data['role'] ?? 'staff';
+        if (in_array($role, ['branch_manager', 'staff'], true) && empty($data['branch_id'])) {
+            throw new \RuntimeException('Branch allocation is required for branch managers and staff');
+        }
+
         if (!$currentUser->isSuperAdmin() && !$currentUser->canAccessBranch($data['branch_id'] ?? null)) {
             throw new \RuntimeException('You do not have permission to create users for this branch');
         }

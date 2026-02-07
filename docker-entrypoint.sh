@@ -78,7 +78,7 @@ else
         cp .env.development .env
     fi
     if [ -f ".env" ]; then
-        # Update DB_HOST to use Docker service name when running in container
+        # Update DB_HOST and DB_PORT for Docker (mariadb service uses internal port 3306)
         sed -i '/^#.*DB_HOST=/d' .env 2>/dev/null || sed -i '' '/^#.*DB_HOST=/d' .env 2>/dev/null || true
         if grep -q "^DB_HOST=" .env; then
             sed -i 's/^DB_HOST=.*/DB_HOST=mariadb/' .env 2>/dev/null || \
@@ -86,6 +86,9 @@ else
         else
             echo "DB_HOST=mariadb" >> .env
         fi
+        # Use port 3306 for Docker internal connection (3307 is host-mapped port only)
+        sed -i 's/^DB_PORT=.*/DB_PORT=3306/' .env 2>/dev/null || \
+        sed -i '' 's/^DB_PORT=.*/DB_PORT=3306/' .env 2>/dev/null || true
     else
         cat > .env <<EOF
 APP_NAME=${APP_NAME:-Laravel}
@@ -107,10 +110,14 @@ SESSION_DRIVER=${SESSION_DRIVER:-file}
 QUEUE_CONNECTION=${QUEUE_CONNECTION:-sync}
 EOF
     fi
-    # Ensure DB_HOST=mariadb for Docker development
+    # Ensure DB_HOST=mariadb and DB_PORT=3306 for Docker development
     if ! grep -q "^DB_HOST=mariadb" .env; then
         sed -i '/^DB_HOST=/d' .env 2>/dev/null || sed -i '' '/^DB_HOST=/d' .env 2>/dev/null || true
         echo "DB_HOST=mariadb" >> .env
+    fi
+    if ! grep -q "^DB_PORT=3306" .env; then
+        sed -i '/^DB_PORT=/d' .env 2>/dev/null || sed -i '' '/^DB_PORT=/d' .env 2>/dev/null || true
+        echo "DB_PORT=3306" >> .env
     fi
 fi
 
@@ -124,12 +131,10 @@ fi
 echo "Running database migrations..."
 php artisan migrate --force || echo "Migration failed or already run"
 
-# Seed database
+# Seed database (branches and treatments are synced from client API or created via UI)
 echo "Seeding database..."
 php artisan db:seed --class=SuperAdminSeeder --force
-php artisan db:seed --class=BranchSeeder --force
 php artisan db:seed --class=PagePermissionSeeder --force
-php artisan db:seed --class=TreatmentSeeder --force
 
 # Clear and cache config (optional, can be skipped in development)
 echo "Optimizing application..."

@@ -23,10 +23,11 @@ Route::get('/vecura/{endpoint}', [VeCuraProxyController::class, 'proxy'])
 
 // Branch Management
 Route::prefix('branches')->group(function () {
-    Route::get('/', [BranchController::class, 'index']);
-    Route::post('/', [BranchController::class, 'store'])->middleware('auth:sanctum');
-    Route::get('/{id}', [BranchController::class, 'show']);
+    Route::get('/', [BranchController::class, 'index'])->middleware('auth:sanctum');
+    Route::post('/', [BranchController::class, 'store'])->middleware('auth:sanctum', \App\Http\Middleware\EnsureSuperAdmin::class);
+    Route::get('/{id}', [BranchController::class, 'show'])->middleware('auth:sanctum');
     Route::put('/{id}', [BranchController::class, 'update'])->middleware('auth:sanctum');
+    Route::delete('/{id}', [BranchController::class, 'destroy'])->middleware('auth:sanctum', \App\Http\Middleware\EnsureSuperAdmin::class);
     
     // Room Management
     Route::prefix('{branchId}/rooms')->middleware('auth:sanctum')->group(function () {
@@ -87,9 +88,13 @@ Route::prefix('patients')->middleware('auth:sanctum')->group(function () {
     Route::put('/{id}', [PatientController::class, 'update']);
 });
 
-// Treatment Management
+// Treatment Management (Super Admin + Branch Manager can create/edit/delete)
 Route::prefix('treatments')->middleware('auth:sanctum')->group(function () {
     Route::get('/', [TreatmentController::class, 'index']);
+    Route::post('/', [TreatmentController::class, 'store']);
+    Route::post('/sync', [TreatmentController::class, 'syncFromClient']);
+    Route::put('/{id}', [TreatmentController::class, 'update']);
+    Route::delete('/{id}', [TreatmentController::class, 'destroy']);
 });
 
 // Booking Management

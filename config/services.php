@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'vecura' => [
+        'base_url' => env('VECURA_API_BASE_URL', 'http://182.79.166.132:8081/VeCura/jsp/API'),
+    ],
+
 ];

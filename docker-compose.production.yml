@@ -1,4 +1,5 @@
-# Production compose - uses remote MariaDB, no local DB container
+# Production compose - uses MariaDB on same server (127.0.0.1)
+# Run on server: docker compose -f docker-compose.production.yml up -d --build
 services:
   app:
     build:
@@ -6,8 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: vue-ura-app
     restart: unless-stopped
-    ports:
-      - "8000:8000"
+    network_mode: host
     volumes:
       - ./:/var/www/html
       - ./storage:/var/www/html/storage
@@ -19,14 +19,8 @@ services:
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
-      - DB_HOST=152.52.122.66
+      - DB_HOST=127.0.0.1
       - DB_PORT=3306
       - DB_DATABASE=mediva
       - DB_USERNAME=medivacron
       - DB_PASSWORD=mediva#54321
-    networks:
-      - vue-ura-network
-
-networks:
-  vue-ura-network:
-    driver: bridge

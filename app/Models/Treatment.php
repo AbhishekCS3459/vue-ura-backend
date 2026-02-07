@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 class Treatment extends Model
 {
     protected $fillable = [
+        'external_id',
         'name',
+        'noof_sessions',
     ];
 
     public function roomAssignments(): HasMany
